@@ -36,7 +36,7 @@ class GameReader:
         img = get_screenshot(x,y,w,h)
         return self._get_location_from_img(img, search_item, a[0], a[1])
 
-    def _get_location_from_img(self, img, search_item, x_offset=0, y_offset=0):
+    def _get_location_from_img(self, img, search_item, dx=0, dy=0):
         resource = resources[search_item]
         template = cv2.imread(resource, 0)
         w,h = template.shape[::-1]
@@ -50,7 +50,7 @@ class GameReader:
             raise ItemNotFound
 
         top_left = rs[0]
-        return top_left[1]+w/2, top_left[0]+h/2
+        return top_left[1]+w/2+dx, top_left[0]+h/2+dy
 
 class ItemNotFound(Exception):
     pass
