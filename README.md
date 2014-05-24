@@ -1,3 +1,7 @@
+### Dependencies
+* openCV
+* PyUserInput
+
 ### Object recognition
 Looks like it can be easily achieved using [OpenCV template matching]
 
