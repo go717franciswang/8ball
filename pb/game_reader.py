@@ -17,6 +17,10 @@ resources = {
         }
 
 class GameReader:
+    YOUR_TURN = 1
+    OPPONENT_TURN = 2
+    BALL_ROLLING = 3
+
     def __init__(self, debug=False):
         self._debug = debug
         self._locations = {}
@@ -69,12 +73,17 @@ class GameReader:
         w = b[0]-a[0]
         h = b[1]-a[1]
         x,y = a
-        img = get_screenshot(x,y,w,h)
+        img = get_screenshot(x,y,w,h,grayscale=False)
         if self._debug:
             # same the images for debug and write tests for different statuses
-            plt.imshow(img,cmap='gray')
+            import time
+            cv2.imwrite('%d_player_status.jpg' % (time.time()*10000,), img)
+            plt.imshow(img)
             plt.draw()
             plt.show(block=False)
+
+    def _get_player_status_from_img(self, img):
+        return 0
 
 class ItemNotFound(Exception):
     pass
