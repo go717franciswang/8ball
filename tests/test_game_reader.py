@@ -1,5 +1,5 @@
 import unittest
-from pb.game_reader import GameReader, ItemNotFound
+from pb.game_reader import GameReader, ItemNotFound, PS_YOUR_TURN, PS_OTHER
 import cv2
 
 class TestGameReader(unittest.TestCase):
@@ -17,11 +17,19 @@ class TestGameReader(unittest.TestCase):
         self.assertRaises(ItemNotFound, lambda: self.g._get_location_from_img(img, '8ball logo'))
 
     def testGetPlayerStatusYourTurn(self):
-        img = cv2.imread('resources/player-status-your-turn.jpg')
+        img = cv2.imread('resources/player_status-your-turn.jpg')
         status = self.g._get_player_status_from_img(img)
-        self.assertEquals(status, self.g.YOUR_TURN)
+        self.assertEquals(status, PS_YOUR_TURN)
 
-        img = cv2.imread('resources/player-status-your-turn2.jpg')
+        img = cv2.imread('resources/player_status-your-turn2.jpg')
         status = self.g._get_player_status_from_img(img)
-        self.assertEquals(status, self.g.YOUR_TURN)
+        self.assertEquals(status, PS_YOUR_TURN)
 
+    def testGetPlayerStatusOther(self):
+        img = cv2.imread('resources/player_status-opponent-turn.jpg')
+        status = self.g._get_player_status_from_img(img)
+        self.assertEquals(status, PS_OTHER)
+
+        img = cv2.imread('resources/player_status-ball-rolling.jpg')
+        status = self.g._get_player_status_from_img(img)
+        self.assertEquals(status, PS_OTHER)

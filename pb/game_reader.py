@@ -16,11 +16,20 @@ resources = {
         'jakarta logo': 'resources/jakarta-logo.jpg',
         }
 
-class GameReader:
-    YOUR_TURN = 1
-    OPPONENT_TURN = 2
-    BALL_ROLLING = 3
+PS_YOUR_TURN = 1
+PS_OTHER = 2
 
+# http://docs.opencv.org/trunk/doc/py_tutorials/py_gui/py_image_display/py_image_display.html
+# colors in openCV is in BGR mode
+player_status_bgr = [
+        ((247, 149, 1), PS_YOUR_TURN),
+        ((56, 122, 255), PS_YOUR_TURN),
+        ((84, 71, 69), PS_OTHER),
+        ]
+
+player_status_color_pos = (4,40)
+
+class GameReader:
     def __init__(self, debug=False):
         self._debug = debug
         self._locations = {}
@@ -74,16 +83,39 @@ class GameReader:
         h = b[1]-a[1]
         x,y = a
         img = get_screenshot(x,y,w,h,grayscale=False)
-        if self._debug:
-            # same the images for debug and write tests for different statuses
-            import time
-            cv2.imwrite('%d_player_status.jpg' % (time.time()*10000,), img)
+
+        status = self._get_player_status_from_img(img)
+        if self._debug and status == PS_OTHER:
             plt.imshow(img)
             plt.draw()
             plt.show(block=False)
 
+        return status
+
     def _get_player_status_from_img(self, img):
-        return 0
+        for bgr,status in player_status_bgr:
+            b,g,r = bgr
+            b2,g2,r2 = img[player_status_color_pos]
+            if abs(b-b2)+abs(g-g2)+abs(r-r2) < 30:
+                return status
+
+        return PS_OTHER
+
+    def get_table(self):
+        a = get_position('logo', self._locations['8ball logo'], 'table top left')
+        b = get_position('table top left', a, 'table bottom right')
+        w = b[0]-a[0]
+        h = b[1]-a[1]
+        x,y = a
+        img = get_screenshot(x,y,w,h,grayscale=False)
+
+        if self._debug:
+            # same the images for debug and write tests for different statuses
+            import time
+            cv2.imwrite('%d_table.jpg' % (time.time()*10000,), img)
+            plt.imshow(img)
+            plt.draw()
+            plt.show(block=False)
 
 class ItemNotFound(Exception):
     pass

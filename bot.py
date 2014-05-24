@@ -1,4 +1,4 @@
-from pb.game_reader import GameReader, ItemNotFound
+from pb.game_reader import GameReader, ItemNotFound, PS_YOUR_TURN
 from pb.position import get_position
 import time
 from pymouse import PyMouse
@@ -38,5 +38,7 @@ while city_position is None:
 print "city found. going in"
 mouse.click(*get_position('logo', logo_position, '1v1 play'))
 while True:
-    reader.get_player_status()
+    if reader.get_player_status() == PS_YOUR_TURN:
+        print "it's your turn, getting table"
+        table = reader.get_table()
 
