@@ -3,10 +3,10 @@ from pb.position import get_position
 import time
 from pymouse import PyMouse
 
-reader = GameReader()
+reader = GameReader(debug=True)
 mouse = PyMouse()
 
-print "Calibration"
+print "calibrating"
 logo_position = None
 while logo_position is None:
     try:
@@ -34,4 +34,9 @@ while city_position is None:
         if iterations > max_iter:
             raise ItemNotFound('Cannot find city: ' + city)
         time.sleep(1)
+
+print "city found. going in"
+mouse.click(*get_position('logo', logo_position, '1v1 play'))
+while True:
+    reader.get_player_status()
 
