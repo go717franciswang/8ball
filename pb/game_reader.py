@@ -14,6 +14,7 @@ resources = {
         'kasbah logo': 'resources/kasbah-logo.jpg',
         'toronto logo': 'resources/toronto-logo.jpg',
         'jakarta logo': 'resources/jakarta-logo.jpg',
+        'ball in hand': 'resources/ball-in-hand.png',
         }
 
 PS_YOUR_TURN = 1
@@ -55,7 +56,7 @@ class GameReader:
         img = get_screenshot(x,y,w,h)
         return self._get_location_from_img(img, search_item, a[0], a[1])
 
-    def _get_location_from_img(self, img, search_item, dx=0, dy=0):
+    def _get_location_from_img(self, img, search_item, dx=0, dy=0, threshold=0.95):
         if self._debug:
             plt.imshow(img,cmap='gray')
             plt.draw()
@@ -67,7 +68,6 @@ class GameReader:
 
         method = cv2.TM_CCOEFF_NORMED
         res = cv2.matchTemplate(img, template, method)
-        threshold = 0.95
         loc = np.where(res >= threshold)
         rs = zip(*loc)
         if len(rs) == 0:
