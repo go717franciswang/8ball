@@ -33,9 +33,3 @@ class Table:
                 return True
         return False
 
-    def show(self):
-        fig = plt.gcf()
-        for b in self.balls:
-            fig.gca().add_artist(plt.Circle((b.x, b.y), b.r, color='r'))
-
-        fig.show()
