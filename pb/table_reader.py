@@ -3,7 +3,7 @@ import numpy as np
 from table import Table
 from matplotlib import pyplot as plt
 from game_reader import GameReader, ItemNotFound
-from ball import Ball, TYPE_PHANTOM
+from ball import Ball, TYPE_PHANTOM, TYPE_CUE
 
 BALL_RADIUS = 8
 
@@ -50,7 +50,7 @@ class TableReader:
         return masked
 
     def get_masked_black(self):
-        masked = cv2.inRange(self.hsv, (0,0,50), (360,360,100))
+        masked = cv2.inRange(self.hsv, (0,0,50), (180,256,100))
         # plt.imshow(masked)
         # plt.show()
         return masked
@@ -101,10 +101,20 @@ class TableReader:
             ball.type = TYPE_PHANTOM
             return
 
+        if self._is_white(ball_area):
+            ball.type = TYPE_CUE
+            return
+
     def _is_phantom(self, ball_area):
         l,u = self.get_dominant_color_range()
         masked = cv2.inRange(ball_area, l, u)
-        return np.count_nonzero(masked) / float(masked.size) > 0.35
+        return np.count_nonzero(masked) / float(masked.size) > 0.30
+
+    def _is_white(self, ball_area):
+        # print ball_area
+        masked = cv2.inRange(ball_area, (0,0,0), (180,30,255))
+        print np.count_nonzero(masked) / float(masked.size)
+        return np.count_nonzero(masked) / float(masked.size) > 0.60
 
     def get_table(self):
         size = self.original.shape
@@ -125,6 +135,14 @@ class TableReader:
             self._update_ball_detail(ball, table)
             if ball.type == TYPE_PHANTOM:
                 continue
+
+            # if ball-in-hand, then make sure cue ball is right under the hand
+            # else it is a false positive match
+            if ball.type == TYPE_CUE and table.is_ball_in_hand():
+                x,y = table.get_hand()
+                d = ((x-ball.x)**2 + (y-ball.y)**2)**0.5
+                if d > BALL_RADIUS:
+                    continue
 
             table.add_ball(ball)
 
