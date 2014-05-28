@@ -11,31 +11,34 @@ class TableReader:
         self.debug = debug
         self.hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         self.gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        self._dominant_color_range
 
     def get_dominant_color_range(self):
-        bounds = [[], []]
-        for i in xrange(3):
-            hist, bins = np.histogram(self.hsv[:,:,i], 100)
-            samples = float(np.sum(hist))
-            maxarg = np.argmax(hist)
-            min_bound = maxarg
-            max_bound = maxarg
+        if self._dominant_color_range is None:
+            bounds = [[], []]
+            for i in xrange(3):
+                hist, bins = np.histogram(self.hsv[:,:,i], 100)
+                samples = float(np.sum(hist))
+                maxarg = np.argmax(hist)
+                min_bound = maxarg
+                max_bound = maxarg
 
-            while min_bound > 0:
-                min_bound -= 1
-                if hist[min_bound] / samples < 0.005:
-                    min_bound += 1
-                    break
+                while min_bound > 0:
+                    min_bound -= 1
+                    if hist[min_bound] / samples < 0.005:
+                        min_bound += 1
+                        break
 
-            while max_bound < 99:
-                if hist[max_bound] / samples < 0.005:
-                    max_bound -= 1
-                    break
-                max_bound += 1
+                while max_bound < 99:
+                    if hist[max_bound] / samples < 0.005:
+                        max_bound -= 1
+                        break
+                    max_bound += 1
 
-            bounds[0].append(np.int(bins[min_bound]))
-            bounds[1].append(np.int(bins[max_bound+1]))
-        return map(tuple,bounds)
+                bounds[0].append(np.int(bins[min_bound]))
+                bounds[1].append(np.int(bins[max_bound+1]))
+            self._dominant_color_range = map(tuple, bounds)
+        return self._dominant_color_range
 
     def get_masked_background(self):
         l,u = self.get_dominant_color_range()
@@ -85,6 +88,8 @@ class TableReader:
             return True
         except ItemNotFound:
             return False
+
+    def _get_ball_detail(self, ball):
 
 
     def get_table(self):

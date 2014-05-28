@@ -25,6 +25,7 @@ class TestTableReader(unittest.TestCase):
         self.assertFalse(table.is_ball_in_hand())
 
     def testCorrectNumberOfBalls(self):
+        # phantom ball is excluded
         expected_ball_count = {
                 'resources/table1.jpg': 16,
                 'resources/table2.jpg': 14,
