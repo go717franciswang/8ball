@@ -113,7 +113,6 @@ class TableReader:
     def _is_white(self, ball_area):
         # print ball_area
         masked = cv2.inRange(ball_area, (0,0,0), (180,30,255))
-        print np.count_nonzero(masked) / float(masked.size)
         return np.count_nonzero(masked) / float(masked.size) > 0.60
 
     def get_table(self):
