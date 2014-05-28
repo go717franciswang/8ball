@@ -101,6 +101,10 @@ class TableReader:
             ball.type = ball_mod.TYPE_PHANTOM
             return
 
+        if self._is_black(ball_area):
+            ball.type = ball_mod.TYPE_BLACK
+            return
+
         ratio = self._get_white_ratio(ball_area)
         if ratio > 0.50:
             ball.type = ball_mod.TYPE_CUE
@@ -116,6 +120,10 @@ class TableReader:
         l,u = self.get_dominant_color_range()
         masked = cv2.inRange(ball_area, l, u)
         return np.count_nonzero(masked) / float(masked.size) > 0.30
+
+    def _is_black(self, ball_area):
+        masked = cv2.inRange(ball_area, (0,0,0), (180,256,50))
+        return np.count_nonzero(masked) / float(masked.size) > 0.45
 
     def _get_white_ratio(self, ball_area):
         # print ball_area
@@ -155,10 +163,8 @@ class TableReader:
         if self.debug:
             colored = self.original.copy()
             for b in table.get_balls():
-                if b.type == ball_mod.TYPE_CUE:
+                if b.type == ball_mod.TYPE_CUE or b.type == ball_mod.TYPE_BLACK:
                     color = (0,0,255) # red
-                elif b.type == ball_mod.TYPE_BLACK:
-                    color = (255,255,0) # cyan
                 elif b.type == ball_mod.TYPE_STRIPE:
                     color = (0,255,0) # green
                 elif b.type == ball_mod.TYPE_SOLID:
