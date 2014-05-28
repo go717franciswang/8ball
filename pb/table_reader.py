@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 from table import Table
 from matplotlib import pyplot as plt
-from game_reader import GameReader, ItemNotFound
-from ball import Ball, TYPE_PHANTOM, TYPE_CUE
+import game_reader
+import ball as ball_mod
 
 BALL_RADIUS = 8
 
@@ -85,10 +85,10 @@ class TableReader:
 
     def _is_ball_in_hand(self):
         try:
-            self._hand_pos = GameReader()._get_location_from_img(
+            self._hand_pos = game_reader.GameReader()._get_location_from_img(
                     self.gray, 'ball in hand', threshold=0.9)
             return True
-        except ItemNotFound:
+        except game_reader.ItemNotFound:
             return False
 
     def _update_ball_detail(self, ball, table):
@@ -98,11 +98,11 @@ class TableReader:
         y1 = min(ball.y+BALL_RADIUS,table.w-1)
         ball_area = self.hsv[y0:y1, x0:x1]
         if self._is_phantom(ball_area):
-            ball.type = TYPE_PHANTOM
+            ball.type = ball_mod.TYPE_PHANTOM
             return
 
         if self._is_white(ball_area):
-            ball.type = TYPE_CUE
+            ball.type = ball_mod.TYPE_CUE
             return
 
     def _is_phantom(self, ball_area):
@@ -124,7 +124,7 @@ class TableReader:
 
         circles = self.get_circles()
         for c in circles[0,:]:
-            ball = Ball(
+            ball = ball_mod.Ball(
                     x=int(np.round(c[0])), 
                     y=int(np.round(c[1])), 
                     r=BALL_RADIUS)
@@ -132,12 +132,12 @@ class TableReader:
                 continue
 
             self._update_ball_detail(ball, table)
-            if ball.type == TYPE_PHANTOM:
+            if ball.type == ball_mod.TYPE_PHANTOM:
                 continue
 
             # if ball-in-hand, then make sure cue ball is right under the hand
             # else it is a false positive match
-            if ball.type == TYPE_CUE and table.is_ball_in_hand():
+            if ball.type == ball_mod.TYPE_CUE and table.is_ball_in_hand():
                 x,y = table.get_hand()
                 d = ((x-ball.x)**2 + (y-ball.y)**2)**0.5
                 if d > BALL_RADIUS:
@@ -152,7 +152,8 @@ class TableReader:
 
             self.original = cv2.cvtColor(self.original, cv2.COLOR_BGR2RGB)
             plt.imshow(self.original)
-            plt.show()
+            plt.draw()
+            plt.show(block=False)
 
         return table
 

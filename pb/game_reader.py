@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from position import get_position
 from screenshot import get_screenshot
+import table_reader
 
 resources = {
         '8ball logo': 'resources/8ball-logo.jpg',
@@ -108,14 +109,18 @@ class GameReader:
         h = b[1]-a[1]
         x,y = a
         img = get_screenshot(x,y,w,h,grayscale=False)
+        table = table_reader.TableReader(img, debug=self._debug).get_table()
 
         if self._debug:
             # same the images for debug and write tests for different statuses
-            import time
-            cv2.imwrite('%d_table.jpg' % (time.time()*10000,), img)
-            plt.imshow(img)
-            plt.draw()
-            plt.show(block=False)
+            # import time
+            # cv2.imwrite('%d_table.jpg' % (time.time()*10000,), img)
+            # plt.imshow(img)
+            # plt.draw()
+            # plt.show(block=False)
+            pass
+
+        return table
 
 class ItemNotFound(Exception):
     pass
