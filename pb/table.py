@@ -4,8 +4,8 @@ class Table:
     def __init__(self, w, h):
         self._ball_in_hand = False
         self._hand_pos = None
-        self._w = w
-        self._h = h
+        self.w = w
+        self.h = h
         self.balls = []
 
     def set_ball_in_hand(self, ball_in_hand):
@@ -29,7 +29,7 @@ class Table:
     def does_collide(self, ball):
         # bruteforce since so few balls, perhaps use 2d binary tree for optimization if needed
         for existing in self.balls:
-            if existing.distance_btw_centers(ball) < existing.r + ball.r:
+            if existing.distance_btw_centers(ball) < existing.r + ball.r - 2:
                 return True
         return False
 

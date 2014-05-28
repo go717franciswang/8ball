@@ -3,7 +3,9 @@ import numpy as np
 from table import Table
 from matplotlib import pyplot as plt
 from game_reader import GameReader, ItemNotFound
-from ball import Ball
+from ball import Ball, TYPE_PHANTOM
+
+BALL_RADIUS = 8
 
 class TableReader:
     def __init__(self, img, debug=False):
@@ -11,7 +13,7 @@ class TableReader:
         self.debug = debug
         self.hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         self.gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        self._dominant_color_range
+        self._dominant_color_range = None
 
     def get_dominant_color_range(self):
         if self._dominant_color_range is None:
@@ -89,8 +91,20 @@ class TableReader:
         except ItemNotFound:
             return False
 
-    def _get_ball_detail(self, ball):
+    def _update_ball_detail(self, ball, table):
+        x0 = max(ball.x-BALL_RADIUS,0)
+        x1 = min(ball.x+BALL_RADIUS,table.h-1)
+        y0 = max(ball.y-BALL_RADIUS,0)
+        y1 = min(ball.y+BALL_RADIUS,table.w-1)
+        ball_area = self.hsv[y0:y1, x0:x1]
+        if self._is_phantom(ball_area):
+            ball.type = TYPE_PHANTOM
+            return
 
+    def _is_phantom(self, ball_area):
+        l,u = self.get_dominant_color_range()
+        masked = cv2.inRange(ball_area, l, u)
+        return np.count_nonzero(masked) / float(masked.size) > 0.35
 
     def get_table(self):
         size = self.original.shape
@@ -104,9 +118,15 @@ class TableReader:
             ball = Ball(
                     x=int(np.round(c[0])), 
                     y=int(np.round(c[1])), 
-                    r=8)
-            if not table.does_collide(ball):
-                table.add_ball(ball)
+                    r=BALL_RADIUS)
+            if table.does_collide(ball):
+                continue
+
+            self._update_ball_detail(ball, table)
+            if ball.type == TYPE_PHANTOM:
+                continue
+
+            table.add_ball(ball)
 
         if self.debug:
             for b in table.get_balls():
