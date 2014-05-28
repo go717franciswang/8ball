@@ -101,19 +101,26 @@ class TableReader:
             ball.type = ball_mod.TYPE_PHANTOM
             return
 
-        if self._is_white(ball_area):
+        ratio = self._get_white_ratio(ball_area)
+        if ratio > 0.50:
             ball.type = ball_mod.TYPE_CUE
             return
+
+        if ratio > 0.10:
+            ball.type = ball_mod.TYPE_STRIPE
+            return 
+
+        ball.type = ball_mod.TYPE_SOLID
 
     def _is_phantom(self, ball_area):
         l,u = self.get_dominant_color_range()
         masked = cv2.inRange(ball_area, l, u)
         return np.count_nonzero(masked) / float(masked.size) > 0.30
 
-    def _is_white(self, ball_area):
+    def _get_white_ratio(self, ball_area):
         # print ball_area
         masked = cv2.inRange(ball_area, (0,0,0), (180,30,255))
-        return np.count_nonzero(masked) / float(masked.size) > 0.60
+        return np.count_nonzero(masked) / float(masked.size)
 
     def get_table(self):
         size = self.original.shape
@@ -146,20 +153,31 @@ class TableReader:
             table.add_ball(ball)
 
         if self.debug:
+            colored = self.original.copy()
             for b in table.get_balls():
-                cv2.circle(self.original,(b.x, b.y), b.r,(0,255,0),2)
-                cv2.circle(self.original,(b.x, b.y),2,(0,0,255),3)
+                if b.type == ball_mod.TYPE_CUE:
+                    color = (0,0,255) # red
+                elif b.type == ball_mod.TYPE_BLACK:
+                    color = (255,255,0) # cyan
+                elif b.type == ball_mod.TYPE_STRIPE:
+                    color = (0,255,0) # green
+                elif b.type == ball_mod.TYPE_SOLID:
+                    color = (0,255,255) # yellow
+
+                cv2.circle(colored,(b.x, b.y), b.r,color,2)
+                cv2.circle(colored,(b.x, b.y),2,(0,0,255),3)
+
+            colored = cv2.cvtColor(colored, cv2.COLOR_BGR2RGB)
+            plt.subplot(2,1,1)
+            plt.imshow(colored)
+            plt.draw()
 
             self.original = cv2.cvtColor(self.original, cv2.COLOR_BGR2RGB)
+            plt.subplot(2,1,2)
             plt.imshow(self.original)
             plt.draw()
-            plt.show(block=False)
+            # plt.show(block=False)
+            plt.show(block=True)
 
         return table
-
-if __name__ == '__main__':
-    for i in xrange(1,5):
-        img = cv2.imread('resources/table%d.jpg' % (i,))
-        table = TableReader(img)
-        table.get_gray_img_no_background()
 
