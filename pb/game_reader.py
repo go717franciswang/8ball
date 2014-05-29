@@ -93,6 +93,27 @@ class GameReader:
 
         return status
 
+    def get_target(self):
+        # x,y = get_position('logo', self._locations['8ball logo'], 'target ball pixel')
+        # print "target ball pixel:"
+        # img = get_screenshot(x,y,1,1,grayscale=False)
+        # print cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        a = get_position('logo', self._locations['8ball logo'], 'target ball top left')
+        b = get_position('logo', self._locations['8ball logo'], 'target ball bottom right')
+        w = b[0]-a[0]
+        h = b[1]-a[1]
+        x,y = a
+        img = get_screenshot(x,y,w,h,grayscale=False)
+        if self._debug:
+            import uuid
+            cv2.imwrite('ball-target-%s.jpg' % (uuid.uuid4(),), img)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # print img
+            plt.imshow(img)
+            plt.draw()
+            plt.show(block=False)
+
     def _get_player_status_from_img(self, img):
         for bgr,status in player_status_bgr:
             b,g,r = bgr
