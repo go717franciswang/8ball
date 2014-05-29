@@ -29,7 +29,7 @@ class Table:
     def does_collide(self, ball):
         # bruteforce since so few balls, perhaps use 2d binary tree for optimization if needed
         for existing in self.balls:
-            if existing.distance_btw_centers(ball) < existing.r + ball.r - 2:
+            if existing.distance_btw_centers(ball) < existing.r + ball.r - 4:
                 return True
         return False
 

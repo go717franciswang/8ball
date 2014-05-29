@@ -5,7 +5,12 @@ from matplotlib import pyplot as plt
 import game_reader
 import ball as ball_mod
 
-BALL_RADIUS = 8
+BALL_RADIUS = 9
+BALL_ROI = np.zeros((BALL_RADIUS*2+1, BALL_RADIUS*2+1), dtype='uint8')
+for i in range(BALL_RADIUS*2+1):
+    for j in range(BALL_RADIUS*2+1):
+        if ((i-BALL_RADIUS)**2 + (j-BALL_RADIUS)**2)**0.5 <= BALL_RADIUS:
+            BALL_ROI[i,j] = 255
 
 class TableReader:
     def __init__(self, img, debug=False):
@@ -93,10 +98,12 @@ class TableReader:
 
     def _update_ball_detail(self, ball, table):
         x0 = max(ball.x-BALL_RADIUS,0)
-        x1 = min(ball.x+BALL_RADIUS,table.h-1)
+        x1 = min(ball.x+BALL_RADIUS+1,table.h)
         y0 = max(ball.y-BALL_RADIUS,0)
-        y1 = min(ball.y+BALL_RADIUS,table.w-1)
+        y1 = min(ball.y+BALL_RADIUS+1,table.w)
         ball_area = self.hsv[y0:y1, x0:x1]
+        w,h,d = ball_area.shape
+        ball_area = cv2.bitwise_and(ball_area, ball_area, mask=BALL_ROI[:w,:h])
         if self._is_phantom(ball_area):
             ball.type = ball_mod.TYPE_PHANTOM
             return
@@ -110,7 +117,7 @@ class TableReader:
             ball.type = ball_mod.TYPE_CUE
             return
 
-        if ratio > 0.10:
+        if ratio > 0.22:
             ball.type = ball_mod.TYPE_STRIPE
             return 
 
@@ -119,15 +126,47 @@ class TableReader:
     def _is_phantom(self, ball_area):
         l,u = self.get_dominant_color_range()
         masked = cv2.inRange(ball_area, l, u)
-        return np.count_nonzero(masked) / float(masked.size) > 0.30
+        return np.count_nonzero(masked) / float(masked.size) > 0.20
 
     def _is_black(self, ball_area):
-        masked = cv2.inRange(ball_area, (0,0,0), (180,256,50))
+        masked = cv2.inRange(ball_area, (0,0,0), (180,256,40))
         return np.count_nonzero(masked) / float(masked.size) > 0.45
 
     def _get_white_ratio(self, ball_area):
-        # print ball_area
-        masked = cv2.inRange(ball_area, (0,0,0), (180,30,255))
+        import uuid
+        masked = cv2.inRange(ball_area, (0,0,100), (180,90,255))
+        # plt.subplot(2,3,1)
+        # plt.imshow(ball_area)
+        # plt.draw()
+
+        # plt.subplot(2,3,2)
+        # plt.imshow(masked)
+        # plt.draw()
+
+        # plt.subplot(2,3,3)
+        # rgb = cv2.cvtColor(ball_area, cv2.COLOR_HSV2RGB)
+        # plt.imshow(rgb)
+        # plt.draw()
+
+        # blur = cv2.blur(ball_area, (3,3))
+        # blur_masked = cv2.inRange(blur, (0,0,100), (180,90,255))
+        # plt.subplot(2,3,4)
+        # plt.imshow(blur)
+        # plt.draw()
+
+        # plt.subplot(2,3,5)
+        # plt.imshow(blur_masked)
+        # plt.draw()
+
+        # plt.subplot(2,3,6)
+        # blur_rgb = cv2.cvtColor(blur, cv2.COLOR_HSV2RGB)
+        # plt.imshow(blur_rgb)
+        # plt.draw()
+
+        # plt.show(block=False)
+
+        # cv2.imwrite('ball_area_masked-%s.png' % (uuid.uuid4(),), masked)
+        # cv2.imwrite('ball_area_masked-%s.png' % (uuid.uuid4(),), ball_area)
         return np.count_nonzero(masked) / float(masked.size)
 
     def get_table(self):
@@ -182,8 +221,8 @@ class TableReader:
             plt.subplot(2,1,2)
             plt.imshow(self.original)
             plt.draw()
-            # plt.show(block=False)
-            plt.show(block=True)
+            plt.show(block=False)
+            # plt.show(block=True)
 
         return table
 
