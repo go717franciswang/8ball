@@ -16,9 +16,8 @@ raw_positions = {
         'table bottom right': (2913, 710),
         'player status top left': (2506, 294),
         'player status bottom right': (2585, 373),
-        'target ball pixel': (2484, 357),
-        'target ball top left': (2484, 290),
-        'target ball bottom right': (2505, 312),
+        'target ball top left': (2484, 337),
+        'target ball bottom right': (2506, 360),
         }
 
 def get_position(known_position_name, known_position, query_position_name):

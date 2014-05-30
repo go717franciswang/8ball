@@ -41,6 +41,7 @@ while True:
     if reader.get_player_status() == PS_YOUR_TURN:
         print "checking target ball"
         target = reader.get_target()
+        print "got type:", target
 
         print "it's your turn, getting table"
         table = reader.get_table()
