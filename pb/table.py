@@ -33,3 +33,22 @@ class Table:
                 return True
         return False
 
+    def get_holes(self):
+        '''the 2 middle holes should be placed somewhere 
+           outside of the table, so that balls close the 
+           rail cannot score in them'''
+        return ((0, 0),
+                (w, 0),
+                (0, h),
+                (w, h),
+                (w/2, -h*0.05),
+                (w/2, h*1.05))
+
+    def get_target_balls(self, ball_type):
+        rs = []
+        for ball in self.balls:
+            if ball.type == ball_type:
+                rs.append(ball)
+        return rs
+
+
