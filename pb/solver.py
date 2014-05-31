@@ -68,3 +68,15 @@ class Solver:
         p23 = np.linalg.norm(np.subtract(p2, p3))
         angle = np.arccos((p12**2 + p13**2 - p23**2) / (2*p12*p13))
         return angle
+
+    def get_closest_open_shot(self, target_ball_type):
+        closest = None
+        closest_dist = float('inf')
+        cue = self.table.get_target_balls(bll.TYPE_CUE)[0]
+        for ball in self.table.get_target_balls(target_ball_type):
+            d = cue.distance_btw_centers(ball)
+            if d < closest_dist:
+                closest_dist = d
+                closest = ball
+
+        return closest.get_pos(), closest_dist

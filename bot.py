@@ -3,10 +3,11 @@ from pb.position import get_position
 import pb.solver
 import pb.ball
 import time
+import pb.player
 from pymouse import PyMouse
 
 reader = GameReader(debug=True)
-mouse = PyMouse()
+player = pb.player.Player()
 
 print "calibrating"
 logo_position = None
@@ -18,7 +19,7 @@ while logo_position is None:
 
 print "found logo at ", logo_position
 print "clicking play btn"
-mouse.click(*get_position('logo', logo_position, 'menu play'))
+player.click(get_position('logo', logo_position, 'menu play'))
 
 city = 'london'
 print "searching for %s game" % (city,)
@@ -31,14 +32,14 @@ while city_position is None:
     try:
         city_position = reader.get_location_from_game(city+' logo', game_top_left)
     except ItemNotFound:
-        mouse.click(*left_arrow)
+        player.click(left_arrow)
         iterations += 1
         if iterations > max_iter:
             raise ItemNotFound('Cannot find city: ' + city)
         time.sleep(1)
 
 print "city found. going in"
-mouse.click(*get_position('logo', logo_position, '1v1 play'))
+player.click(get_position('logo', logo_position, '1v1 play'))
 while True:
     if reader.get_player_status() == PS_YOUR_TURN:
         print "checking target ball"
@@ -60,9 +61,23 @@ while True:
             else:
                 target, power = solver.find_target_pos_and_power(target_ball_type)
 
-            if target is not None:
-                print "Got target: %s, power: %s" % (target, power)
-                mouse.move(*reader.get_target_on_screen(target))
+            if target is None:
+                print "Found no target, going to use the closest target"
+                if target_ball_type is None:
+                    target, d1 = solver.get_closest_open_shot(pb.ball.TYPE_STRIPE)
+                    t2, d2 = solver.get_closest_open_shot(pb.ball.TYPE_SOLID)
+                    if d2 < d1:
+                        target = t2
+                else:
+                    target, d1 = solver.get_closest_open_shot(target_ball_type)
+                    
+            print "Shooting"
+            player.shoot(
+                    target, 
+                    power, 
+                    reader.get_table_offset(), 
+                    table.get_target_balls(pb.ball.TYPE_CUE)[0])
+
         except Exception as e:
-            print e
+            print "Error: %s" % (e,)
 
