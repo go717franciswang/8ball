@@ -1,6 +1,7 @@
 ### Dependencies
 * openCV
 * [PyUserInput]
+* PyGame
 
 ### References
 * Object detection with [OpenCV template matching]

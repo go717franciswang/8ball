@@ -24,3 +24,11 @@ class TestBall(unittest.TestCase):
         x,y = ball.get_phantom_pos((0,0))
         npt.assert_almost_equal(x, 1.70710678)
         npt.assert_almost_equal(y, 1.70710678)
+
+    def testIntersectLine(self):
+        ball = pb.ball.Ball(0,0,1)
+        self.assertTrue(ball.intersect_line((-1,0), (1,0)))
+
+    def testIntersectLine2(self):
+        ball = pb.ball.Ball(0,0,1)
+        self.assertTrue(ball.intersect_line((-1,0.5), (1,0.5)))
