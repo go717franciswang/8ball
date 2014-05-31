@@ -5,6 +5,7 @@ import pb.ball
 import time
 import pb.player
 from pymouse import PyMouse
+import traceback, sys
 
 class Bot:
     def __init__(self):
@@ -17,30 +18,31 @@ class Bot:
         while self.logo_position is None:
             try:
                 self.logo_position = self.reader.get_location_from_entire_screen('8ball logo')
+                self.game_top_left = get_position('logo', self.logo_position, 'game top left')
             except ItemNotFound:
                 time.sleep(1)
 
     def at_menu(self):
         try:
-            self.reader.get_location_from_game('8ball logo')
+            self.reader.get_location_from_game('8ball logo', self.game_top_left)
             return True
         except ItemNotFound:
             return False
 
     def start_game(self, city):
-        print "found logo at ", logo_position
+        print "found logo at ", self.logo_position
         print "clicking play btn"
         self.player.click(get_position('logo', self.logo_position, 'menu play'))
 
         print "searching for %s game" % (city,)
-        game_top_left = get_position('logo', self.logo_position, 'game top left')
         left_arrow = get_position('logo', self.logo_position, 'left arrow')
         city_position = None
         max_iter = 20
         iterations = 0
         while city_position is None:
             try:
-                city_position = self.reader.get_location_from_game(city+' logo', game_top_left)
+                city_position = self.reader.get_location_from_game(
+                        city+' logo', self.game_top_left)
             except ItemNotFound:
                 self.player.click(left_arrow)
                 iterations += 1
@@ -86,11 +88,12 @@ class Bot:
                 self.player.shoot(
                         target, 
                         power, 
-                        reader.get_table_offset(), 
+                        self.reader.get_table_offset(), 
                         table.get_target_balls(pb.ball.TYPE_CUE)[0])
 
             except Exception as e:
                 print "Error: %s" % (e,)
+                traceback.print_exc(file=sys.stdout)
 
 if __name__ == '__main__':
     bot = Bot()
@@ -101,6 +104,6 @@ if __name__ == '__main__':
         while True:
             bot.take_turn()
             turns += 1
-            if turns % 20 == 0 && bot.at_menu():
+            if turns % 20 == 0 and bot.at_menu():
                 break
 
