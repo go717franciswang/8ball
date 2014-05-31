@@ -140,7 +140,7 @@ class GameReader:
         return PS_OTHER
 
     def get_table(self):
-        a = get_position('logo', self._locations['8ball logo'], 'table top left')
+        a = self.get_table_offset()
         b = get_position('table top left', a, 'table bottom right')
         w = b[0]-a[0]
         h = b[1]-a[1]
@@ -158,6 +158,12 @@ class GameReader:
             pass
 
         return table
+
+    def get_table_offset(self):
+        return get_position('logo', self._locations['8ball logo'], 'table top left')
+
+    def get_target_on_screen(self, target):
+        return np.add(target, self.get_table_offset())
 
 class ItemNotFound(Exception):
     pass

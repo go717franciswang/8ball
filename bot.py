@@ -1,5 +1,7 @@
 from pb.game_reader import GameReader, ItemNotFound, PS_YOUR_TURN
 from pb.position import get_position
+import pb.solver
+import pb.ball
 import time
 from pymouse import PyMouse
 
@@ -45,4 +47,22 @@ while True:
 
         print "it's your turn, getting table"
         table = reader.get_table()
+
+        try:
+            solver = pb.solver.Solver(table)
+            target_ball_type = reader.get_target()
+            target = None
+
+            if target_ball_type is None:
+                target, power = solver.find_target_pos_and_power(pb.ball.TYPE_STRIPE)
+                if target is None:
+                    target, power = solver.find_target_pos_and_power(pb.ball.TYPE_SOLID)
+            else:
+                target, power = solver.find_target_pos_and_power(target_ball_type)
+
+            if target is not None:
+                print "Got target: %s, power: %s" % (target, power)
+                mouse.move(*reader.get_target_on_screen(target))
+        except Exception as e:
+            print e
 
