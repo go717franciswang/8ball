@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import game_reader
 import ball as ball_mod
 
-BALL_RADIUS = 9
+BALL_RADIUS = 8
 BALL_ROI = np.zeros((BALL_RADIUS*2+1, BALL_RADIUS*2+1), dtype='uint8')
 for i in range(BALL_RADIUS*2+1):
     for j in range(BALL_RADIUS*2+1):
