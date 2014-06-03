@@ -9,7 +9,7 @@ class TableViewer:
         img[:,:,1] = np.ones(shape=(table.w, table.h), dtype='uint8') * 255
 
         for ball in table.get_balls():
-            pos = ball.get_pos()
+            pos = tuple(map(np.int, np.round(ball.get_pos())))
             r = ball.r
             if ball.type == bll.TYPE_CUE:
                 cv2.circle(img, pos, r, (255,255,255), lineType=cv2.CV_AA)
