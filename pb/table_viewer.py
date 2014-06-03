@@ -12,13 +12,15 @@ class TableViewer:
             pos = ball.get_pos()
             r = ball.r
             if ball.type == bll.TYPE_CUE:
-                cv2.circle(img, pos, r, (255,255,255))
+                cv2.circle(img, pos, r, (255,255,255), lineType=cv2.CV_AA)
             elif ball.type == bll.TYPE_BLACK:
-                cv2.circle(img, pos, r, (0,0,0))
+                cv2.circle(img, pos, r, (0,0,0), lineType=cv2.CV_AA)
             elif ball.type == bll.TYPE_STRIPE:
-                cv2.circle(img, pos, r, (255,0,0))
+                cv2.circle(img, pos, r, (255,0,0), lineType=cv2.CV_AA)
             elif ball.type == bll.TYPE_SOLID:
-                cv2.circle(img, pos, r, (0,0,255))
+                cv2.circle(img, pos, r, (0,0,255), lineType=cv2.CV_AA)
+            elif ball.type == bll.TYPE_PHANTOM:
+                cv2.circle(img, pos, r, (128,128,128), lineType=cv2.CV_AA)
 
         plt.imshow(img)
         plt.draw()
@@ -31,6 +33,7 @@ if __name__ == '__main__':
     t.add_ball(bll.Ball(250,100,9,bll.TYPE_BLACK))
     t.add_ball(bll.Ball(250,50,9,bll.TYPE_STRIPE))
     t.add_ball(bll.Ball(250,150,9,bll.TYPE_SOLID))
+    t.add_ball(bll.Ball(232,100,9,bll.TYPE_PHANTOM))
     table_viewer = TableViewer()
     table_viewer.display(t, True)
 

@@ -6,6 +6,7 @@ MAX_BALL_COUNT_BY_TYPE = {
         bll.TYPE_BLACK: 1,
         bll.TYPE_STRIPE: 14, # using twice the correct number for now
         bll.TYPE_SOLID: 14,
+        bll.TYPE_PHANTOM: 1,
         }
 
 class Table:
