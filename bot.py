@@ -4,6 +4,8 @@ import pb.solver
 import pb.ball
 import time
 import pb.player
+import pb.table_reader
+import pb.table_viewer
 from pymouse import PyMouse
 import traceback, sys
 
@@ -84,6 +86,12 @@ class Bot:
                     else:
                         target, d1 = solver.get_closest_open_shot(target_ball_type)
                         
+                print "Drawing simulated board"
+                tv = pb.table_viewer.TableViewer()
+                table.add_ball(pb.ball.Ball(
+                    target[0], target[1], pb.table_reader.BALL_RADIUS, pb.ball.TYPE_PHANTOM))
+                tv.display(table)
+
                 print "Shooting"
                 self.player.shoot(
                         target, 
