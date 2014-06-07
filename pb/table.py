@@ -68,6 +68,8 @@ class Table:
                 (self.w/2, self.h*1.05))
 
     def get_target_balls(self, ball_type):
-        return self.type_balls[ball_type]
+        if not self.type_balls.has_key(ball_type):
+            raise Exception("ball type: %d cannot be found on the table" % (ball_type,))
 
+        return self.type_balls[ball_type]
 
